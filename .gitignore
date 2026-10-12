@@ -1,0 +1,12 @@
+# raw data and environments stay out of git
+**/data/*
+!**/data/processed/
+**/data/processed/*
+# small, hand-made tables that the reports cite
+!elections/data/processed/partido_ideologia.csv
+!elections/data/processed/serie_historica.csv
+**/.venv/
+**/__pycache__/
+**/.ipynb_checkpoints/
+.claude/
+.DS_Store
