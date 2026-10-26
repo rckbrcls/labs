@@ -4,7 +4,7 @@ Executa as células de código dos três notebooks (com backend sem tela) e extr
 as tabelas que eles já calculam. Nada é recalculado por fora: se o notebook
 mudar, o JSON muda. Saída: JSON em stdout ou no caminho passado como argumento.
 
-Uso (na raiz do projeto):
+Uso (na raiz de elections/):
     .venv/bin/python src/export_labs_data.py /caminho/saida.json
 """
 import json
@@ -25,8 +25,16 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def run_notebook(name: str) -> dict:
-    """Executa todas as células de código num namespace e o devolve."""
-    nb = json.loads((ROOT / f"{name}.ipynb").read_text())
+    """Executa todas as células de código num namespace e o devolve.
+
+    `name` é relativo à raiz (ex.: "primeiro-turno/analise_abstencao_2026"); o
+    notebook roda de dentro da própria pasta, como no Jupyter.
+    """
+    import os
+
+    path = ROOT / f"{name}.ipynb"
+    nb = json.loads(path.read_text())
+    os.chdir(path.parent)
     ns: dict = {"__name__": "__main__"}
     for cell in nb["cells"]:
         if cell["cell_type"] != "code":
@@ -42,13 +50,10 @@ def r(x, n=2):
 
 
 def main() -> dict:
-    import os
-
-    os.chdir(ROOT)
     out: dict = {}
 
     # ---------------------------------------------------------------- abstenção
-    a = run_notebook("analise_abstencao_2026")
+    a = run_notebook("primeiro-turno/analise_abstencao_2026")
     serie = a["serie"].set_index("ano").abst_pct
     out["abstentionSeries"] = [{"year": str(int(y)), "abstention": r(v)} for y, v in serie.items()]
 
@@ -89,7 +94,7 @@ def main() -> dict:
     ]
 
     # ------------------------------------------------------------ pobre de direita
-    p = run_notebook("analise_pobre_de_direita")
+    p = run_notebook("primeiro-turno/analise_pobre_de_direita")
     pres, d_all, wfn = p["pres"], p["d"], p["w"]
 
     left_q = pres.groupby(["ano", "q"]).apply(lambda x: wfn(x, "esq")).unstack("q")
@@ -147,7 +152,7 @@ def main() -> dict:
     ]
 
     # ------------------------------------------------------------------- virada
-    v = run_notebook("analise_virada_direita")
+    v = run_notebook("primeiro-turno/analise_virada_direita")
     nat = v["nat"]
     pres_nat = nat.loc["presidente"]
     out["nationalBlocsPresident"] = [
@@ -202,10 +207,11 @@ def main() -> dict:
 
 
 if __name__ == "__main__":
+    dest = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else None
     data = main()
     text = json.dumps(data, ensure_ascii=False, indent=1)
-    if len(sys.argv) > 1:
-        Path(sys.argv[1]).write_text(text)
+    if dest:
+        dest.write_text(text)
         print("wrote", sys.argv[1], len(text), "bytes")
     else:
         print(text)
