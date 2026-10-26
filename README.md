@@ -6,7 +6,7 @@ Each folder is a self-contained experiment with its own data, environment and no
 
 | Experiment | Question | Report |
 |---|---|---|
-| [`elections/`](elections) | What abstention, income and region do, and don't, explain about Brazil's 2026 election | [Where Did the Vote Go?](https://labs.rckbrcls.com/reports/where-did-the-vote-go) |
+| [`elections/`](elections) | Brazil's 2026 election, by round: abstention, income, region, the runoff turnaround and voting hours | [Where Did the Vote Go?](https://labs.rckbrcls.com/reports/where-did-the-vote-go) |
 | [`ufc/`](ufc) | Not started yet | — |
 
 ## How an experiment becomes a report
